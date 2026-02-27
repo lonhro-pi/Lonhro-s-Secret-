@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Lonhro’s Secret</title>
+  <meta name="theme-color" content="#000000"/>
+  <link rel="manifest" href="data:application/manifest+json,{
+    'name': 'Lonhro’s Secret',
+    'short_name': 'Lonhro',
+    'start_url': '.',
+    'display': 'standalone',
+    'background_color': '#000000',
+    'theme_color': '#FF1493',
+    'icons': [{'src': 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔞</text></svg>','sizes':'192x192','type':'image/svg+xml'}]
+  }"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=VT323&family=OCR-A&display=swap');
+
+    :root {
+      --bg: #000000;
+      --cerise: #FF1493;
+      --cerise-glow: #FF69B4;
+      --cyan: #00FFFF;
+      --matrix: #00FF41;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--bg);
+      color: #eee;
+      font-family: 'VT323', monospace;
+      height: 100dvh;
+      overflow: hidden;
+      position: relative;
+      image-rendering: pixelated;
+    }
+
+    /* Matrix rain */
+    #matrix { position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.25; }
+    canvas { width:100%; height:100%; }
+
+    /* Scanlines */
+    .scanlines::after {
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:9999;
+      background: repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(255,20,147,0.07) 2px, rgba(255,20,147,0.07) 4px);
+      animation: scan 10s linear infinite;
+    }
+    @keyframes scan { 0% { transform:translateY(-100%); } 100% { transform:translateY(100%); } }
+
+    /* Glitch & pulse */
+    .glitch {
+      animation: glitch 2s infinite;
+      text-shadow: 0.05em 0 0 #00FFFF, -0.05em 0 0 #FF1493;
+    }
+    @keyframes glitch {
+      0%,19%,21%,23%,25%,54%,56%,100% { text-shadow: 0.05em 0 0 #00FFFF, -0.05em 0 0 #FF1493; }
+      20%,24%,55% { text-shadow: 0.1em 0 0 #00FFFF, -0.1em 0 0 #FF1493; transform: translateX(-2px); }
+    }
+    .neon-pulse { animation: pulse 1.8s infinite alternate; }
+    @keyframes pulse { to { text-shadow: 0 0 20px var(--cerise-glow), 0 0 40px var(--cerise); } }
+
+    /* UI base */
+    header, .tab-bar {
+      position: fixed;
+      left:0; right:0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--cerise);
+      z-index: 100;
+    }
+    header { top:0; height:50px; font-family: 'Orbitron', sans-serif; font-size:1.4rem; color:var(--cerise); text-align:center; line-height:50px; }
+    .tab-bar { bottom:0; height:60px; display:flex; }
+    .tab { flex:1; text-align:center; padding:8px; color:#888; font-size:0.9rem; transition:0.2s; }
+    .tab.active { color:var(--cerise); text-shadow:0 0 12px var(--cerise); }
+
+    /* Screens */
+    .screen { position:absolute; inset:0; padding:60px 0 70px; overflow-y:auto; display:none; }
+    .screen.active { display:block; }
+
+    /* Splash */
+    #splash {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background: linear-gradient(to bottom, #000, #111);
+    }
+    #splash h1 {
+      font-family: 'Orbitron', sans-serif; font-size:4.5rem; color:var(--cerise);
+      text-shadow: 0 0 30px var(--cerise), 0 0 60px #000;
+      animation: drip 4s infinite;
+    }
+    @keyframes drip {
+      0%,100% { transform:translateY(0); }
+      50% { transform:translateY(8px); }
+    }
+
+    .btn-18 { 
+      margin:40px 20px 20px; padding:18px 40px; font-size:1.5rem;
+      background:transparent; border:3px solid var(--cerise); color:var(--cerise);
+      font-family:'Orbitron'; cursor:pointer; transition:all 0.3s;
+    }
+    .btn-18:hover { background:var(--cerise); color:#000; box-shadow:0 0 40px var(--cerise); }
+
+    /* Profile / Feed / etc placeholders */
+    .profile-pic {
+      width:140px; height:140px; margin:30px auto; border-radius:50%;
+      border:4px solid var(--cerise); box-shadow:0 0 30px var(--cerise);
+      background:#222 url('https://via.placeholder.com/140/000/FF1493?text=PORN') center/cover;
+      animation: holo 6s infinite alternate;
+    }
+    @keyframes holo { 0% { filter:hue-rotate(0deg) brightness(1); } 100% { filter:hue-rotate(30deg) brightness(1.3); } }
+
+    .card {
+      background:rgba(20,20,20,0.8); margin:12px; border:1px solid var(--cerise); border-radius:8px;
+      overflow:hidden; position:relative;
+    }
+    .card::before {
+      content:""; position:absolute; inset:0; background:linear-gradient(transparent, rgba(255,20,147,0.15));
+      pointer-events:none;
+    }
+
+    .swipe-deck
