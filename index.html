@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Lonhro’s Secret</title>
+  <meta name="theme-color" content="#000000"/>
+  <link rel="manifest" href="data:application/manifest+json,{
+    'name': 'Lonhro’s Secret',
+    'short_name': 'Lonhro',
+    'start_url': '.',
+    'display': 'standalone',
+    'background_color': '#000000',
+    'theme_color': '#FF1493',
+    'icons': [{'src': 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔞</text></svg>','sizes':'192x192','type':'image/svg+xml'}]
+  }"/>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="scanlines">
+
+<canvas id="matrix"></canvas>
+
+<!-- Splash / Gate -->
+<div id="splash" class="screen active">
+  <h1 class="glitch neon-pulse">Lonhro’s Secret</h1>
+  <button class="btn-18" onclick="enterApp()">I am 18+ and consent to explicit adult content</button>
+  <button class="btn-18 melbourne-btn" onclick="enterApp(true)">Melbourne Local – Jump In</button>
+</div>
+
+<!-- Profile -->
+<div id="profile" class="screen">
+  <header>Lonhro’s Secret – Profile</header>
+  <div class="profile-pic"></div>
+  <div class="form-container">
+    <input type="text" placeholder="@lonhroslut420" class="neon-input"/>
+    <textarea placeholder="tina-slut bottom, raw root only, slammed 24/7" maxlength="500" class="neon-textarea"></textarea>
+    <select class="neon-select">
+      <option>Horny for root now</option>
+      <option>PNP loaded – got 2g tina</option>
+      <option>Hosting rig session</option>
+      <option>Just nutted – recharge</option>
+    </select>
+    <div class="kink-tags">bareback • creampie • PNP • slam • tweaker • gangbang • breeding • public • alley fuck • hotel orgy</div>
+  </div>
+</div>
+
+<!-- Home Feed -->
+<div id="feed" class="screen">
+  <header class="glitch">Nearby Roots</header>
+  <div class="filter-bar">
+    <span class="active">Nearby Roots</span>
+    <span>PNP Only</span>
+    <span>New Porn</span>
+    <span>Melbourne Hot</span>
+  </div>
+  <div class="feed-container">
+    <div class="card">
+      <div class="media-placeholder porn-carousel"></div>
+      <div class="card-info">
+        <div class="card-title">Wants root tonight – Footscray</div>
+        <div class="card-desc">just slammed, holes open, come breed raw</div>
+      </div>
+    </div>
+    <!-- Duplicate cards for scroll feel -->
+    <div class="card"><div class="media-placeholder porn-carousel"></div><div class="card-info"><div class="card-title">Tweaker bottom hosting – CBD</div><div class="card-desc">pipe loaded, vers tops wanted</div></div></div>
+  </div>
+</div>
+
+<!-- Casual Roots (Swipe) -->
+<div id="roots" class="screen">
+  <header>Casual Roots</header>
+  <div class="swipe-deck" id="swipe-deck"></div>
+</div>
+
+<!-- PNP Zone -->
+<div id="pnp" class="screen">
+  <header class="screaming-cerise">PNP ZONE – SLAM & ROOT</header>
+  <div class="pnp-container">
+    <div class="filter-tags">
+      <span>tina / ice</span><span>G / GHB</span><span>poppers</span><span>group slam</span><span>bottom</span><span>hosting rig</span>
+    </div>
+    <div class="map-mock">Melbourne PNP Map – pulsing pins (Southbank, St Kilda, Richmond)</div>
+    <div class="card">
+      <div class="card-info">
+        <div class="card-title">3 guys 1 girl hotel rn – Southbank rm 412</div>
+        <div class="card-desc">bring pipe & lube – started 1am – all welcome</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Private Chat Example -->
+<div id="chat" class="screen">
+  <header>@tweakedhole69</header>
+  <div class="chat-messages">
+    <div class="bubble outgoing">got rig ready, come get rooted raw</div>
+    <div class="bubble incoming">Pipe loaded, breed me deep – show cock first</div>
+    <div class="typing">typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+  </div>
+  <div class="chat-input-bar">
+    <input type="text" placeholder="Type your filth..." class="neon-input"/>
+    <button class="send-btn">Send</button>
+  </div>
+</div>
+
+<!-- Bottom Tab Bar -->
+<div class="tab-bar">
+  <div class="tab active" data-screen="feed">Feed</div>
+  <div class="tab" data-screen="roots">Roots</div>
+  <div class="tab" data-screen="pnp">PNP</div>
+  <div class="tab" data-screen="profile">Me</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
