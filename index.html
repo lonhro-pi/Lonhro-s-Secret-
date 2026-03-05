@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Lonhro’s Secret</title>
-  <meta name="theme-color" content="#000000"/>
+  <meta name="theme-color" content="#0F0F0F"/>
   <link rel="manifest" href="data:application/manifest+json,{
     'name': 'Lonhro’s Secret',
     'short_name': 'Lonhro',
     'start_url': '.',
     'display': 'standalone',
-    'background_color': '#000000',
-    'theme_color': '#FF1493',
+    'background_color': '#0F0F0F',
+    'theme_color': '#C71585',
     'icons': [{'src': 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔞</text></svg>','sizes':'192x192','type':'image/svg+xml'}]
   }"/>
   <link rel="stylesheet" href="styles.css">
@@ -20,11 +20,11 @@
 
 <canvas id="matrix"></canvas>
 
-<!-- Splash / Gate -->
+<!-- Splash / Gate – zero barrier -->
 <div id="splash" class="screen active">
   <h1 class="glitch neon-pulse">Lonhro’s Secret</h1>
-  <button class="btn-18" onclick="enterApp()">I am 18+ and consent to explicit adult content</button>
-  <button class="btn-18 melbourne-btn" onclick="enterApp(true)">Melbourne Local – Jump In</button>
+  <p style="color:var(--deeppink); font-size:1.6rem; margin:30px; text-align:center;">Melbourne's rawest anonymous root & slam board</p>
+  <button class="btn-18" onclick="enterAppAnon()">Enter – No login, no limits</button>
 </div>
 
 <!-- Profile -->
@@ -74,7 +74,7 @@
 
 <!-- PNP Zone -->
 <div id="pnp" class="screen">
-  <header class="screaming-cerise">PNP ZONE – SLAM & ROOT</header>
+  <header class="screaming-deeppink">PNP ZONE – SLAM & ROOT</header>
   <div class="pnp-container">
     <div class="filter-tags">
       <span>tina / ice</span><span>G / GHB</span><span>poppers</span><span>group slam</span><span>bottom</span><span>hosting rig</span>
@@ -111,6 +111,10 @@
   <div class="tab" data-screen="profile">Me</div>
 </div>
 
+<!-- Anon post button -->
+<button id="anon-post-btn" style="position:fixed; bottom:80px; right:20px; background:var(--deeppink); color:#000; border:none; border-radius:50%; width:60px; height:60px; font-size:2rem; box-shadow:0 0 30px var(--deeppink-glow); z-index:999;">+</button>
+
+<script src="firebase.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
