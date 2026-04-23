@@ -1,8 +1,8 @@
 // firebase.js – zero auth edition
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
-import { getDatabase, ref as dbRef, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { getFirestore, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+import { getDatabase } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -14,10 +14,15 @@ const firebaseConfig = {
   databaseURL: "YOUR_DATABASE_URL"
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export const rtdb = getDatabase(app);
+export const firebaseEnabled = Object.values(firebaseConfig).every(
+  value => typeof value === "string" && value !== "" && !value.startsWith("YOUR_")
+);
 
-export let anonId = localStorage.getItem('lonhroAnonId') || 'anon_' + Math.random().toString(36).slice(2,10);
-localStorage.setItem('lonhroAnonId', anonId);
+const app = firebaseEnabled ? initializeApp(firebaseConfig) : null;
+export const db = app ? getFirestore(app) : null;
+export const storage = app ? getStorage(app) : null;
+export const rtdb = app ? getDatabase(app) : null;
+export { serverTimestamp, Timestamp };
+
+export let anonId = localStorage.getItem("lonhroAnonId") || "anon_" + Math.random().toString(36).slice(2, 10);
+localStorage.setItem("lonhroAnonId", anonId);

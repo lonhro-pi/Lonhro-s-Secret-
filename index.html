@@ -2,119 +2,360 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Lonhro’s Secret</title>
-  <meta name="theme-color" content="#0F0F0F"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Lonhro's Secret</title>
+  <meta name="theme-color" content="#0b1020" />
   <link rel="manifest" href="data:application/manifest+json,{
-    'name': 'Lonhro’s Secret',
+    'name': 'Lonhro\\'s Secret',
     'short_name': 'Lonhro',
     'start_url': '.',
     'display': 'standalone',
-    'background_color': '#0F0F0F',
-    'theme_color': '#C71585',
-    'icons': [{'src': 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔞</text></svg>','sizes':'192x192','type':'image/svg+xml'}]
-  }"/>
-  <link rel="stylesheet" href="styles.css">
+    'background_color': '#0b1020',
+    'theme_color': '#6d5efc',
+    'icons': [{'src': 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%230b1020%22/><text x=%2250%22 y=%2262%22 text-anchor=%22middle%22 font-size=%2248%22 fill=%22%23ffffff%22>LS</text></svg>','sizes':'192x192','type':'image/svg+xml'}]
+  }" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="scanlines">
+<body class="state-splash" data-active-screen="splash">
+  <div class="app-shell">
+    <div class="ambient ambient-1"></div>
+    <div class="ambient ambient-2"></div>
+    <div class="ambient ambient-3"></div>
 
-<canvas id="matrix"></canvas>
+    <header class="top-bar app-chrome">
+      <div class="top-bar-inner">
+        <div class="brand-group">
+          <div class="brand-mark">LS</div>
+          <div class="brand-copy">
+            <p class="eyebrow">Melbourne local board</p>
+            <h1>Lonhro's Secret</h1>
+          </div>
+        </div>
 
-<!-- Splash / Gate – zero barrier -->
-<div id="splash" class="screen active">
-  <h1 class="glitch neon-pulse">Lonhro’s Secret</h1>
-  <p style="color:var(--deeppink); font-size:1.6rem; margin:30px; text-align:center;">Melbourne's rawest anonymous root & slam board</p>
-  <button class="btn-18" onclick="enterAppAnon()">Enter – No login, no limits</button>
-</div>
+        <div class="top-actions">
+          <span class="status-pill">Anonymous mode</span>
+          <button class="ghost-button" type="button" data-screen-target="profile">Edit profile</button>
+        </div>
+      </div>
+    </header>
 
-<!-- Profile -->
-<div id="profile" class="screen">
-  <header>Lonhro’s Secret – Profile</header>
-  <div class="profile-pic"></div>
-  <div class="form-container">
-    <input type="text" placeholder="@lonhroslut420" class="neon-input"/>
-    <textarea placeholder="tina-slut bottom, raw root only, slammed 24/7" maxlength="500" class="neon-textarea"></textarea>
-    <select class="neon-select">
-      <option>Horny for root now</option>
-      <option>PNP loaded – got 2g tina</option>
-      <option>Hosting rig session</option>
-      <option>Just nutted – recharge</option>
-    </select>
-    <div class="kink-tags">bareback • creampie • PNP • slam • tweaker • gangbang • breeding • public • alley fuck • hotel orgy</div>
-  </div>
-</div>
+    <main class="app-view">
+      <section id="splash" class="screen screen--splash active">
+        <div class="screen-frame splash-grid">
+          <section class="hero-card">
+            <span class="eyebrow">Modernized interface</span>
+            <h2>Clear cards, cleaner forms, and a much more current feel.</h2>
+            <p class="hero-copy">
+              The old retro terminal treatment is gone. This version leans on structured panels,
+              soft depth, readable typography, and clearer actions so the app feels current.
+            </p>
 
-<!-- Home Feed -->
-<div id="feed" class="screen">
-  <header class="glitch">Nearby Roots</header>
-  <div class="filter-bar">
-    <span class="active">Nearby Roots</span>
-    <span>PNP Only</span>
-    <span>New Porn</span>
-    <span>Melbourne Hot</span>
-  </div>
-  <div class="feed-container">
-    <div class="card">
-      <div class="media-placeholder porn-carousel"></div>
-      <div class="card-info">
-        <div class="card-title">Wants root tonight – Footscray</div>
-        <div class="card-desc">just slammed, holes open, come breed raw</div>
+            <div class="hero-stats">
+              <div class="stat-card">
+                <span class="stat-label">UI language</span>
+                <strong>Modern surfaces</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Forms</span>
+                <strong>Clear fields and dropdowns</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-label">Flow</span>
+                <strong>Faster scanning</strong>
+              </div>
+            </div>
+
+            <div class="hero-actions">
+              <button id="enter-app-btn" class="primary-button" type="button">Enter anonymously</button>
+              <button class="secondary-button" type="button" data-screen-target="feed">Preview feed</button>
+            </div>
+          </section>
+
+          <section class="panel feature-panel">
+            <div class="section-head">
+              <span class="section-label">Design direction</span>
+              <h3>What changed in the shell</h3>
+            </div>
+
+            <div class="feature-list">
+              <article class="feature-item">
+                <span class="feature-dot"></span>
+                <div>
+                  <h4>Stronger hierarchy</h4>
+                  <p>Screen intros, card sections, and clear spacing make each area easier to scan.</p>
+                </div>
+              </article>
+
+              <article class="feature-item">
+                <span class="feature-dot"></span>
+                <div>
+                  <h4>Better controls</h4>
+                  <p>Profile fields, filters, and the quick-post flow now use polished form patterns.</p>
+                </div>
+              </article>
+
+              <article class="feature-item">
+                <span class="feature-dot"></span>
+                <div>
+                  <h4>Cleaner interaction</h4>
+                  <p>The floating composer, improved tabs, and swipe actions feel closer to a real app.</p>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="feed" class="screen">
+        <div class="screen-frame">
+          <section class="page-intro panel panel--accent">
+            <div>
+              <span class="section-label">Nearby activity</span>
+              <h2>Feed</h2>
+              <p>Live posts are now presented inside cleaner cards with clearer metadata and timing.</p>
+            </div>
+
+            <button class="secondary-button" type="button" data-screen-target="roots">Open deck</button>
+          </section>
+
+          <div class="filter-bar" role="tablist" aria-label="Feed filters">
+            <button class="filter-chip is-active" type="button">Nearby Roots</button>
+            <button class="filter-chip" type="button">PNP Only</button>
+            <button class="filter-chip" type="button">New Media</button>
+            <button class="filter-chip" type="button">Melbourne Hot</button>
+          </div>
+
+          <div class="feed-container"></div>
+        </div>
+      </section>
+
+      <section id="roots" class="screen">
+        <div class="screen-frame">
+          <section class="page-intro panel">
+            <div>
+              <span class="section-label">Swipe deck</span>
+              <h2>Casual Roots</h2>
+              <p>Cleaner presentation for profile previews, with touch and button actions that work on desktop too.</p>
+            </div>
+          </section>
+
+          <div class="swipe-deck" id="swipe-deck"></div>
+
+          <div class="swipe-actions">
+            <button id="swipe-pass-btn" class="secondary-button" type="button">Pass</button>
+            <button id="swipe-like-btn" class="primary-button" type="button">Open chat</button>
+          </div>
+
+          <p class="helper-copy">Swipe on touch or use the buttons below the card.</p>
+        </div>
+      </section>
+
+      <section id="pnp" class="screen">
+        <div class="screen-frame">
+          <section class="page-intro panel panel--accent">
+            <div>
+              <span class="section-label">Session overview</span>
+              <h2>PNP Zone</h2>
+              <p>A more polished scene summary with tagged filters, map styling, and cleaner listing blocks.</p>
+            </div>
+          </section>
+
+          <div class="filter-bar" aria-label="PNP filters">
+            <button class="filter-chip is-active" type="button">tina / ice</button>
+            <button class="filter-chip" type="button">G / GHB</button>
+            <button class="filter-chip" type="button">poppers</button>
+            <button class="filter-chip" type="button">group</button>
+            <button class="filter-chip" type="button">hosting</button>
+            <button class="filter-chip" type="button">late night</button>
+          </div>
+
+          <section class="map-mock panel">
+            <div class="map-head">
+              <div>
+                <span class="section-label">Live map</span>
+                <h3>Melbourne hotspots</h3>
+              </div>
+              <span class="status-pill">3 active pins</span>
+            </div>
+
+            <div class="map-grid">
+              <div class="map-node map-node--1"><span>Southbank</span></div>
+              <div class="map-node map-node--2"><span>St Kilda</span></div>
+              <div class="map-node map-node--3"><span>Richmond</span></div>
+            </div>
+          </section>
+
+          <article class="card card--compact">
+            <div class="card-info">
+              <div class="card-meta">
+                <span class="status-pill">Hotel session</span>
+                <span>Started 1:00 AM</span>
+              </div>
+              <h3 class="card-title">Southbank room meetup</h3>
+              <p class="card-desc">Clean listing hierarchy, clearer details, and better scanability than the old neon blocks.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="profile" class="screen">
+        <div class="screen-frame">
+          <section class="panel profile-hero">
+            <button class="profile-pic" type="button" aria-label="Upload profile media"></button>
+
+            <div class="profile-summary">
+              <span class="section-label">Profile</span>
+              <h2>Shape your anon card</h2>
+              <p>Everything here now sits inside clean inputs, dropdowns, and chips instead of the old terminal-style fields.</p>
+              <span class="helper-pill">Tap the avatar to upload media</span>
+            </div>
+          </section>
+
+          <section class="profile-grid">
+            <label class="field">
+              <span class="field-label">Handle</span>
+              <input type="text" placeholder="@lonhroslut420" class="input-control" />
+            </label>
+
+            <label class="field">
+              <span class="field-label">Current vibe</span>
+              <select class="select-control">
+                <option>Horny for root now</option>
+                <option>PNP loaded - got 2g tina</option>
+                <option>Hosting rig session</option>
+                <option>Just nutted - recharge</option>
+              </select>
+            </label>
+
+            <label class="field field--full">
+              <span class="field-label">Bio</span>
+              <textarea placeholder="Set your own vibe, limits, location, and what you are after." maxlength="500" class="textarea-control"></textarea>
+            </label>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <span class="section-label">Tags</span>
+              <h3>Quick interests</h3>
+            </div>
+
+            <div class="chip-list">
+              <span class="chip">bareback</span>
+              <span class="chip">creampie</span>
+              <span class="chip">PNP</span>
+              <span class="chip">slam</span>
+              <span class="chip">tweaker</span>
+              <span class="chip">group</span>
+              <span class="chip">breeding</span>
+              <span class="chip">public</span>
+              <span class="chip">hotel</span>
+              <span class="chip">orgy</span>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="chat" class="screen">
+        <div class="screen-frame">
+          <section class="page-intro panel">
+            <div>
+              <span class="section-label">Direct chat</span>
+              <h2>@tweakedhole69</h2>
+              <p>Conversation view now sits in a proper message panel with a modern composer.</p>
+            </div>
+          </section>
+
+          <section class="chat-panel panel">
+            <div class="chat-messages">
+              <div class="bubble outgoing">Got a setup ready. What time are you free?</div>
+              <div class="bubble incoming">Hosting now in the inner city. Happy to trade details in chat.</div>
+              <div class="typing">typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+            </div>
+
+            <div class="chat-input-bar">
+              <input type="text" placeholder="Type a message..." class="input-control" />
+              <button class="primary-button" type="button">Send</button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <div id="composer-modal" class="modal" hidden>
+      <div class="modal-backdrop" data-close-modal></div>
+
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="composer-title">
+        <div class="modal-header">
+          <div>
+            <span class="section-label">Quick post</span>
+            <h2 id="composer-title">Create a new feed card</h2>
+          </div>
+
+          <button id="composer-close-btn" class="icon-button" type="button" aria-label="Close composer">X</button>
+        </div>
+
+        <form id="composer-form" class="modal-form">
+          <label class="field">
+            <span class="field-label">Title</span>
+            <input id="composer-post-title" class="input-control" type="text" placeholder="Hosting tonight - Footscray" maxlength="80" />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Location</span>
+            <input id="composer-post-location" class="input-control" type="text" placeholder="Footscray" maxlength="50" />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Post copy</span>
+            <textarea id="composer-post-text" class="textarea-control" placeholder="Set what you are offering, what you want, and any important details." maxlength="280"></textarea>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Auto-expire</span>
+            <select id="composer-post-expiry" class="select-control">
+              <option value="4">4 hours</option>
+              <option value="12">12 hours</option>
+              <option value="24" selected>24 hours</option>
+              <option value="48">48 hours</option>
+              <option value="72">72 hours</option>
+            </select>
+          </label>
+
+          <div class="modal-actions">
+            <button class="secondary-button" type="button" data-close-modal>Cancel</button>
+            <button class="primary-button" type="submit">Post now</button>
+          </div>
+        </form>
       </div>
     </div>
-    <!-- Duplicate cards for scroll feel -->
-    <div class="card"><div class="media-placeholder porn-carousel"></div><div class="card-info"><div class="card-title">Tweaker bottom hosting – CBD</div><div class="card-desc">pipe loaded, vers tops wanted</div></div></div>
-  </div>
-</div>
 
-<!-- Casual Roots (Swipe) -->
-<div id="roots" class="screen">
-  <header>Casual Roots</header>
-  <div class="swipe-deck" id="swipe-deck"></div>
-</div>
+    <button id="anon-post-btn" class="fab app-chrome" type="button">
+      <span class="fab-icon">+</span>
+      <span>Quick post</span>
+    </button>
 
-<!-- PNP Zone -->
-<div id="pnp" class="screen">
-  <header class="screaming-deeppink">PNP ZONE – SLAM & ROOT</header>
-  <div class="pnp-container">
-    <div class="filter-tags">
-      <span>tina / ice</span><span>G / GHB</span><span>poppers</span><span>group slam</span><span>bottom</span><span>hosting rig</span>
-    </div>
-    <div class="map-mock">Melbourne PNP Map – pulsing pins (Southbank, St Kilda, Richmond)</div>
-    <div class="card">
-      <div class="card-info">
-        <div class="card-title">3 guys 1 girl hotel rn – Southbank rm 412</div>
-        <div class="card-desc">bring pipe & lube – started 1am – all welcome</div>
+    <nav class="tab-bar app-chrome" aria-label="Primary navigation">
+      <div class="tab-bar-inner">
+        <button class="tab active" data-screen="feed" type="button">
+          <span class="tab-kicker">Home</span>
+          <span class="tab-label">Feed</span>
+        </button>
+        <button class="tab" data-screen="roots" type="button">
+          <span class="tab-kicker">Browse</span>
+          <span class="tab-label">Roots</span>
+        </button>
+        <button class="tab" data-screen="pnp" type="button">
+          <span class="tab-kicker">Scene</span>
+          <span class="tab-label">PNP</span>
+        </button>
+        <button class="tab" data-screen="profile" type="button">
+          <span class="tab-kicker">Account</span>
+          <span class="tab-label">Me</span>
+        </button>
       </div>
-    </div>
+    </nav>
   </div>
-</div>
 
-<!-- Private Chat Example -->
-<div id="chat" class="screen">
-  <header>@tweakedhole69</header>
-  <div class="chat-messages">
-    <div class="bubble outgoing">got rig ready, come get rooted raw</div>
-    <div class="bubble incoming">Pipe loaded, breed me deep – show cock first</div>
-    <div class="typing">typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
-  </div>
-  <div class="chat-input-bar">
-    <input type="text" placeholder="Type your filth..." class="neon-input"/>
-    <button class="send-btn">Send</button>
-  </div>
-</div>
-
-<!-- Bottom Tab Bar -->
-<div class="tab-bar">
-  <div class="tab active" data-screen="feed">Feed</div>
-  <div class="tab" data-screen="roots">Roots</div>
-  <div class="tab" data-screen="pnp">PNP</div>
-  <div class="tab" data-screen="profile">Me</div>
-</div>
-
-<!-- Anon post button -->
-<button id="anon-post-btn" style="position:fixed; bottom:80px; right:20px; background:var(--deeppink); color:#000; border:none; border-radius:50%; width:60px; height:60px; font-size:2rem; box-shadow:0 0 30px var(--deeppink-glow); z-index:999;">+</button>
-
-<script src="firebase.js"></script>
-<script src="script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
