@@ -1,193 +1,473 @@
-// script.js
-import { db, storage, rtdb, anonId, serverTimestamp, Timestamp } from './firebase.js';
-import { collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
-import { ref as dbRef, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+const screens = [...document.querySelectorAll(".screen")];
+const tabs = [...document.querySelectorAll(".tab")];
+const feedContainer = document.querySelector(".feed-container");
+const body = document.body;
+const composerModal = document.getElementById("composer-modal");
+const composerForm = document.getElementById("composer-form");
+const composerTitle = document.getElementById("composer-post-title");
+const composerLocation = document.getElementById("composer-post-location");
+const composerText = document.getElementById("composer-post-text");
+const composerExpiry = document.getElementById("composer-post-expiry");
+const profilePicture = document.querySelector(".profile-pic");
+const swipeDeck = document.getElementById("swipe-deck");
+const uploadInput = document.createElement("input");
+const anonId = getOrCreateAnonId();
+const placeholderFeed = [
+  {
+    title: "Hosting tonight",
+    text: "Clean modern card styling now makes live posts easier to scan at a glance.",
+    location: "Footscray",
+    anonId: "anon-demo",
+    expiresInHours: 6
+  },
+  {
+    title: "Inner city meetup",
+    text: "Layout now uses softer surfaces, clearer spacing, and much better metadata presentation.",
+    location: "CBD",
+    anonId: "anon-preview",
+    expiresInHours: 18
+  }
+];
 
-// Matrix rain
-const canvas = document.getElementById('matrix');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const swipeProfiles = [
+  {
+    name: "Late night host",
+    location: "Richmond",
+    note: "Polished card layout, stronger hierarchy, and quick actions below.",
+    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80"
+  },
+  {
+    name: "Weekend meetup",
+    location: "Southbank",
+    note: "Swipe transitions remain, but the visuals now feel like a current mobile app.",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80"
+  },
+  {
+    name: "Private spot nearby",
+    location: "St Kilda",
+    note: "Cleaner content blocks and improved CTA placement create a stronger flow.",
+    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80"
+  }
+];
 
-const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン★☆†‡§¶∆∇∑∫∏∞■□◆◇○◎●★'.split('');
-const fontSize = 16;
-const columns = canvas.width / fontSize;
-let drops = Array(Math.floor(columns)).fill(1);
+let activeScreen = "splash";
+let feedListenerAttached = false;
+let feedListenerStarting = false;
+let firebaseServicesPromise = null;
+let swipeIndex = 0;
+let touchStartX = 0;
 
-function drawMatrix() {
-  ctx.fillStyle = 'rgba(0,0,0,0.05)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#00CC66';
-  ctx.font = fontSize + 'px monospace';
-
-  drops.forEach((y, i) => {
-    const text = chars[Math.floor(Math.random() * chars.length)];
-    const x = i * fontSize;
-    ctx.fillText(text, x, y * fontSize);
-    if (y * fontSize > canvas.height && Math.random() > 0.97) drops[i] = 0;
-    drops[i]++;
-  });
-}
-setInterval(drawMatrix, 35);
-
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  drops = Array(Math.floor(canvas.width / fontSize)).fill(1);
-});
-
-// Screen navigation
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    const screenId = tab.dataset.screen;
-    document.getElementById(screenId).classList.add('active');
-    tab.classList.add('active');
-  });
-});
-
-// Enter app anon
-function enterAppAnon() {
-  document.getElementById('splash').classList.remove('active');
-  document.getElementById('feed').classList.add('active');
-  document.querySelector('.tab[data-screen="feed"]').classList.add('active');
-  listenToPublicFeed();
-  listenToPNP(); // if implemented
-}
-
-// Media upload – public porn
-const uploadInput = document.createElement('input');
-uploadInput.type = 'file';
-uploadInput.accept = 'image/*,video/*';
+uploadInput.type = "file";
+uploadInput.accept = "image/*,video/*";
 uploadInput.multiple = true;
-uploadInput.style.display = 'none';
+uploadInput.hidden = true;
 document.body.appendChild(uploadInput);
 
-document.querySelector('.profile-pic').addEventListener('click', () => {
-  uploadInput.click();
-});
-
-uploadInput.addEventListener('change', async e => {
-  const files = e.target.files;
-  if (!files.length) return;
-
-  for (const file of files) {
-    const storageRef = ref(storage, `publicPorn/${anonId}/${Date.now()}_${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on('state_changed', 
-      snapshot => {},
-      error => console.error(error),
-      async () => {
-        const url = await getDownloadURL(uploadTask.snapshot.ref);
-        console.log("Public porn uploaded:", url);
-        // Optionally post to feed with mediaUrl: url
-      }
-    );
+function getOrCreateAnonId() {
+  const existingId = window.localStorage.getItem("lonhroAnonId");
+  if (existingId) {
+    return existingId;
   }
-});
 
-// Public feed listener
-function listenToPublicFeed() {
-  const q = query(collection(db, "publicRoots"), orderBy("createdAt", "desc"));
-  onSnapshot(q, snap => {
-    const container = document.querySelector('.feed-container');
-    container.innerHTML = '';
-    snap.forEach(d => {
-      const data = d.data();
-      const card = document.createElement('div');
-      card.className = 'card';
-
-      let countdown = "";
-      if (data.expireAt) {
-        const expires = data.expireAt.toMillis();
-        const remainingMs = expires - Date.now();
-        if (remainingMs > 0) {
-          const hoursLeft = Math.floor(remainingMs / (1000 * 60 * 60));
-          const minsLeft = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
-          countdown = `<div style="color:#B22222; font-size:1.1rem; margin-top:8px;">Expires in ${hoursLeft}h ${minsLeft}m</div>`;
-        } else {
-          countdown = `<div style="color:#B22222;">Already self-destructing...</div>`;
-        }
-      }
-
-      card.innerHTML = `
-        <div class="media-placeholder" style="background-image:url(${data.mediaUrl || 'https://via.placeholder.com/400x320/000/C71585?text=RAW+PORN'})"></div>
-        <div class="card-info">
-          <div class="card-title">${data.title || 'Anonymous wants root NOW'}</div>
-          <div class="card-desc">${data.text || 'slammed cunt open, come pump & dump – CBD'}</div>
-          <div style="color:var(--accent-cyan); font-size:1.1rem; margin-top:8px;">${data.anonId || 'anon'}</div>
-          ${countdown}
-        </div>`;
-      container.appendChild(card);
-    });
-  });
+  const createdId = `anon_${Math.random().toString(36).slice(2, 10)}`;
+  window.localStorage.setItem("lonhroAnonId", createdId);
+  return createdId;
 }
 
-// Anon quick-post with auto-destruct
-document.getElementById('anon-post-btn').addEventListener('click', async () => {
-  const text = prompt("Drop your filth (what you're offering, location, kinks):") || "";
-  const title = prompt("Quick title (e.g. 'tweaker bottom slammed & open – CBD')") || "Anonymous root offer";
-  
-  const hours = prompt("How many hours until this post self-destructs? (default 24, min 1, max 72)", "24");
-  const lifetimeHours = Math.min(Math.max(parseInt(hours) || 24, 1), 72);
-  
-  const expireAt = Timestamp.fromMillis(Date.now() + lifetimeHours * 60 * 60 * 1000);
+async function loadFirebaseServices() {
+  if (firebaseServicesPromise) {
+    return firebaseServicesPromise;
+  }
+
+  firebaseServicesPromise = (async () => {
+    try {
+      const [
+        firebaseModule,
+        firestoreModule,
+        storageModule
+      ] = await Promise.all([
+        import("./firebase.js"),
+        import("https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"),
+        import("https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js")
+      ]);
+
+      return {
+        db: firebaseModule.db,
+        storage: firebaseModule.storage,
+        Timestamp: firebaseModule.Timestamp,
+        serverTimestamp: firebaseModule.serverTimestamp,
+        addDoc: firestoreModule.addDoc,
+        collection: firestoreModule.collection,
+        onSnapshot: firestoreModule.onSnapshot,
+        orderBy: firestoreModule.orderBy,
+        query: firestoreModule.query,
+        getDownloadURL: storageModule.getDownloadURL,
+        ref: storageModule.ref,
+        uploadBytesResumable: storageModule.uploadBytesResumable
+      };
+    } catch (error) {
+      console.error("Firebase bootstrap failed", error);
+      firebaseServicesPromise = null;
+      return null;
+    }
+  })();
+
+  return firebaseServicesPromise;
+}
+
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function setActiveScreen(screenId) {
+  activeScreen = screenId;
+
+  screens.forEach(screen => {
+    screen.classList.toggle("active", screen.id === screenId);
+  });
+
+  tabs.forEach(tab => {
+    const isMatch = tab.dataset.screen === screenId;
+    tab.classList.toggle("active", isMatch);
+    tab.setAttribute("aria-current", isMatch ? "page" : "false");
+  });
+
+  body.dataset.activeScreen = screenId;
+  body.classList.toggle("state-splash", screenId === "splash");
+  body.classList.toggle("state-app", screenId !== "splash");
+
+  if (screenId !== "splash") {
+    void ensureFeedListener();
+  }
+}
+
+function openComposer() {
+  composerModal.hidden = false;
+  body.classList.add("modal-open");
+  window.requestAnimationFrame(() => composerTitle.focus());
+}
+
+function closeComposer() {
+  composerModal.hidden = true;
+  body.classList.remove("modal-open");
+}
+
+function formatTimeRemaining(expireAt) {
+  if (!expireAt) {
+    return "No expiry";
+  }
+
+  const expires = typeof expireAt.toMillis === "function" ? expireAt.toMillis() : expireAt;
+  const remainingMs = expires - Date.now();
+  if (remainingMs <= 0) {
+    return "Expiring now";
+  }
+
+  const totalMinutes = Math.floor(remainingMs / (1000 * 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours === 0) {
+    return `${minutes}m left`;
+  }
+
+  if (minutes === 0) {
+    return `${hours}h left`;
+  }
+
+  return `${hours}h ${minutes}m left`;
+}
+
+function getMediaMarkup(mediaUrl, title) {
+  const imageUrl = mediaUrl || "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80";
+  const safeTitle = escapeHtml(title);
+  return `
+    <div class="media-shell">
+      <div class="media-placeholder" style="background-image:url('${imageUrl}')"></div>
+      <div class="media-overlay">
+        <span class="status-pill">Live post</span>
+        <span>${safeTitle}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderFeedCard(data = {}) {
+  const title = data.title || "Anonymous post";
+  const description = data.text || "No description added yet.";
+  const location = data.location || "Melbourne";
+  const author = data.anonId || "anon";
+  const expiryText = formatTimeRemaining(data.expireAt);
+
+  return `
+    <article class="card">
+      ${getMediaMarkup(data.mediaUrl, title)}
+      <div class="card-info">
+        <div class="card-meta">
+          <span class="status-pill">${escapeHtml(location)}</span>
+          <span class="countdown">${escapeHtml(expiryText)}</span>
+        </div>
+        <h3 class="card-title">${escapeHtml(title)}</h3>
+        <p class="card-desc">${escapeHtml(description)}</p>
+        <div class="card-footer">
+          <span class="card-author">${escapeHtml(author)}</span>
+          <button class="ghost-button ghost-button--small" type="button" data-screen-target="chat">Message</button>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderPlaceholderFeed() {
+  if (!feedContainer) {
+    return;
+  }
+
+  feedContainer.innerHTML = placeholderFeed
+    .map(item => {
+      const expireAt = Date.now() + item.expiresInHours * 60 * 60 * 1000;
+      return renderFeedCard({ ...item, expireAt });
+    })
+    .join("");
+}
+
+async function ensureFeedListener() {
+  if (feedListenerAttached || feedListenerStarting) {
+    return;
+  }
+
+  feedListenerStarting = true;
+  const api = await loadFirebaseServices();
+
+  if (!api || !feedContainer) {
+    renderPlaceholderFeed();
+    feedListenerStarting = false;
+    return;
+  }
 
   try {
-    await addDoc(collection(db, "publicRoots"), {
+    const q = api.query(api.collection(api.db, "publicRoots"), api.orderBy("createdAt", "desc"));
+
+    api.onSnapshot(
+      q,
+      snap => {
+        if (!snap.size) {
+          renderPlaceholderFeed();
+          return;
+        }
+
+        feedContainer.innerHTML = "";
+        snap.forEach(docSnapshot => {
+          const card = document.createElement("div");
+          card.innerHTML = renderFeedCard(docSnapshot.data());
+          feedContainer.appendChild(card.firstElementChild);
+        });
+      },
+      error => {
+        console.error("Feed listener failed", error);
+        renderPlaceholderFeed();
+        feedListenerAttached = false;
+        feedListenerStarting = false;
+      }
+    );
+
+    feedListenerAttached = true;
+  } catch (error) {
+    console.error("Feed boot failed", error);
+    renderPlaceholderFeed();
+  } finally {
+    feedListenerStarting = false;
+  }
+}
+
+async function publishQuickPost() {
+  const title = composerTitle.value.trim() || "Anonymous post";
+  const location = composerLocation.value.trim() || "Melbourne";
+  const text = composerText.value.trim() || "Fresh post from anonymous mode.";
+  const lifetimeHours = Math.min(Math.max(parseInt(composerExpiry.value, 10) || 24, 1), 72);
+  const api = await loadFirebaseServices();
+  const expireAt = api
+    ? api.Timestamp.fromMillis(Date.now() + lifetimeHours * 60 * 60 * 1000)
+    : Date.now() + lifetimeHours * 60 * 60 * 1000;
+
+  try {
+    if (!api) {
+      throw new Error("Firebase unavailable");
+    }
+
+    await api.addDoc(api.collection(api.db, "publicRoots"), {
       title,
+      location,
       text,
       anonId,
-      createdAt: serverTimestamp(),
+      createdAt: api.serverTimestamp(),
       expireAt,
       mediaUrl: ""
     });
-    alert(`Post live — self-destructs in ~${lifetimeHours} hours`);
-  } catch (err) {
-    console.error("Post failed", err);
-  }
-});
+  } catch (error) {
+    console.error("Post failed", error);
 
-// Fake swipe deck init
-function initSwipeDeck() {
-  const deck = document.getElementById('swipe-deck');
-  deck.innerHTML = `
-    <div class="swipe-card">
-      <video autoplay loop muted playsinline style="width:100%;height:72%;object-fit:cover;">
-        <source src="https://via.placeholder.com/400x500.mp4" type="video/mp4">
-      </video>
-      <div style="padding:20px;">
-        <div style="color:var(--deeppink);font-size:1.6rem;">Down to get rooted raw</div>
-        <div style="color:#ccc;font-size:1.3rem;">carpark / motel / public – tweaked and dripping</div>
-      </div>
-    </div>`;
-}
-setTimeout(initSwipeDeck, 600);
+    const fallbackCard = document.createElement("div");
+    fallbackCard.innerHTML = renderFeedCard({
+      title,
+      location,
+      text,
+      anonId,
+      expireAt
+    });
 
-// Basic swipe detection
-let touchStartX = 0;
-document.getElementById('swipe-deck').addEventListener('touchstart', e => {
-  touchStartX = e.touches[0].clientX;
-});
-document.getElementById('swipe-deck').addEventListener('touchend', e => {
-  const diff = e.changedTouches[0].clientX - touchStartX;
-  if (Math.abs(diff) > 100) {
-    const card = document.querySelector('.swipe-card');
-    if (card) {
-      card.style.transition = 'transform 0.7s ease-out';
-      card.style.transform = `translateX(${diff > 0 ? '150%' : '-150%'}) rotate(${diff > 0 ? 25 : -25}deg)`;
-      setTimeout(() => {
-        card.remove();
-        if (diff > 0) {
-          // Match → open chat
-          document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-          document.getElementById('chat').classList.add('active');
-        }
-        setTimeout(initSwipeDeck, 300);
-      }, 700);
+    if (feedContainer) {
+      feedContainer.prepend(fallbackCard.firstElementChild);
     }
   }
+}
+
+function setProfileImage(url) {
+  profilePicture.style.backgroundImage = `linear-gradient(180deg, rgba(5, 10, 22, 0.1), rgba(5, 10, 22, 0.3)), url('${url}')`;
+}
+
+function initSwipeDeck() {
+  if (!swipeDeck) {
+    return;
+  }
+
+  const profile = swipeProfiles[swipeIndex % swipeProfiles.length];
+  swipeDeck.innerHTML = `
+    <article class="swipe-card">
+      <div class="swipe-card-media" style="background-image:url('${profile.image}')">
+        <span class="status-pill">Nearby</span>
+      </div>
+      <div class="swipe-card-content">
+        <div class="swipe-card-title-row">
+          <h3>${escapeHtml(profile.name)}</h3>
+          <span class="chip is-active">${escapeHtml(profile.location)}</span>
+        </div>
+        <p class="swipe-card-copy">${escapeHtml(profile.note)}</p>
+        <div class="swipe-tag-row">
+          <span class="chip">Updated now</span>
+          <span class="chip">Clean layout</span>
+          <span class="chip">Fast actions</span>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function handleSwipe(direction) {
+  const card = swipeDeck?.querySelector(".swipe-card");
+  if (!card) {
+    return;
+  }
+
+  card.classList.add(direction === "right" ? "is-leaving-right" : "is-leaving-left");
+
+  window.setTimeout(() => {
+    swipeIndex += 1;
+    initSwipeDeck();
+    if (direction === "right") {
+      setActiveScreen("chat");
+    }
+  }, 280);
+}
+
+document.getElementById("enter-app-btn").addEventListener("click", () => {
+  setActiveScreen("feed");
 });
+
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    setActiveScreen(tab.dataset.screen);
+  });
+});
+
+document.addEventListener("click", event => {
+  const screenTarget = event.target.closest("[data-screen-target]");
+  if (screenTarget) {
+    setActiveScreen(screenTarget.dataset.screenTarget);
+  }
+
+  if (event.target.closest("[data-close-modal]")) {
+    closeComposer();
+  }
+});
+
+document.getElementById("anon-post-btn").addEventListener("click", openComposer);
+document.getElementById("composer-close-btn").addEventListener("click", closeComposer);
+
+composerForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  await publishQuickPost();
+  composerForm.reset();
+  composerExpiry.value = "24";
+  closeComposer();
+  setActiveScreen("feed");
+});
+
+profilePicture.addEventListener("click", () => {
+  uploadInput.click();
+});
+
+uploadInput.addEventListener("change", async event => {
+  const files = event.target.files;
+  if (!files?.length) {
+    return;
+  }
+
+  for (const file of files) {
+    const localPreviewUrl = window.URL.createObjectURL(file);
+    setProfileImage(localPreviewUrl);
+
+    const api = await loadFirebaseServices();
+    if (!api) {
+      continue;
+    }
+
+    try {
+      const storageRef = api.ref(api.storage, `publicPorn/${anonId}/${Date.now()}_${file.name}`);
+      const uploadTask = api.uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        () => {},
+        error => console.error("Upload failed", error),
+        async () => {
+          const url = await api.getDownloadURL(uploadTask.snapshot.ref);
+          setProfileImage(url);
+        }
+      );
+    } catch (error) {
+      console.error("Storage boot failed", error);
+    }
+  }
+
+  uploadInput.value = "";
+});
+
+swipeDeck.addEventListener("touchstart", event => {
+  touchStartX = event.touches[0].clientX;
+});
+
+swipeDeck.addEventListener("touchend", event => {
+  const diff = event.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(diff) > 80) {
+    handleSwipe(diff > 0 ? "right" : "left");
+  }
+});
+
+document.getElementById("swipe-pass-btn").addEventListener("click", () => handleSwipe("left"));
+document.getElementById("swipe-like-btn").addEventListener("click", () => handleSwipe("right"));
+
+window.addEventListener("keydown", event => {
+  if (event.key === "Escape" && !composerModal.hidden) {
+    closeComposer();
+  }
+});
+
+renderPlaceholderFeed();
+initSwipeDeck();
+setActiveScreen("splash");
